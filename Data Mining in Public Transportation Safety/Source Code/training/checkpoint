@@ -1,0 +1,2 @@
+model_checkpoint_path: "/home/liam/pyproject/training_data/model.tflearn"
+all_model_checkpoint_paths: "/home/liam/pyproject/training_data/model.tflearn"

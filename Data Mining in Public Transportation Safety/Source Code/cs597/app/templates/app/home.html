@@ -1,0 +1,234 @@
+{% extends 'app/base.html' %}
+{% load staticfiles %}
+
+{% load crispy_forms_tags %}
+<style type="text/css">
+  body {
+    padding-top: 70px;
+    
+   
+
+  }
+
+ 
+
+  #dialog {
+    font-family: Georgia, serif;
+    font-size: 25px;
+    letter-spacing: 2px;
+    word-spacing: 2px;
+    color: #703749;
+    font-weight: normal;
+    text-decoration: none;
+    font-style: normal;
+    font-variant: small-caps;
+    text-transform: lowercase;
+  }
+
+  input[type="radio"] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    display: inline-block;
+    position: relative;
+    background-color: #f1f1f1;
+    color: #666;
+    top: 10px;
+    height: 30px;
+    width: 30px;
+    border: 0;
+    border-radius: 50px;
+    cursor: pointer;
+    margin-right: 7px;
+    outline: none;
+  }
+
+  input[type="radio"]:checked::before {
+    position: absolute;
+    font: 13px/1 'Open Sans', sans-serif;
+    left: 11px;
+    top: 7px;
+    content: '\02143';
+    transform: rotate(40deg);
+  }
+
+  input[type="radio"]:hover {
+    background-color: #f7f7f7;
+  }
+
+  input[type="radio"]:checked {
+    background-color: #b6e6ec;
+  }
+
+
+  #custom-search-input {
+    margin: 0;
+    margin-top: 10px;
+    padding: 0;
+  }
+
+  #custom-search-input .search-query {
+    padding-right: 3px;
+    padding-right: 4px \9;
+    padding-left: 3px;
+    padding-left: 4px \9;
+    /* IE7-8 doesn't have border-radius, so don't indent the padding */
+
+    margin-bottom: 0;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+  }
+
+  #custom-search-input button {
+    border: 0;
+    background: none;
+    /** belows styles are working good */
+    padding: 2px 5px;
+    margin-top: 2px;
+    position: relative;
+    left: -28px;
+    /* IE7-8 doesn't have border-radius, so don't indent the padding */
+    margin-bottom: 0;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    color: #D9230F;
+  }
+
+  .search-query:focus+button {
+    z-index: 3;
+  }
+</style>
+
+
+{% block content %}
+<script type="text/javascript">
+  $(function () {
+    $("#dialog").dialog({
+      autoOpen: false,
+      show: {
+        effect: "blind",
+        duration: 1000
+      },
+      hide: {
+        effect: "explode",
+        duration: 1000
+      }
+    });
+  });
+
+  function IsValidZipCode(zip) {
+    var isValid = /^\d{5}$/.test(zip);
+    if (!isValid) {
+      //document.getElementById("ErrorDiv").innerHTML = "The US zip code must contain 5 digits";
+      $('.help-block').css({ "color": "red" });
+      $("#zipcode").focus();
+      return false;
+    } else {
+      $.ajax({
+        url: '/city/',
+        type: 'get',
+        data: { 'search_keyword': zip },
+        dataType: 'json',
+        success: function (data) {
+          //alert(data);
+          //document.getElementById("ErrorDiv").innerHTML = data;
+          //$('.help-block').css({ "color": "green" });
+          if (!data) {
+            $("p", "#dialog").text("INVALID ZIPCODE");
+            $("p", "#dialog").css({
+              'font-family': 'Georgia, serif;', 'font-size': '25px', 'letter-spacing': '2px', 'word-spacing': '2px', 'color': '#703749', 'font-weight': 'normal', 'text-decoration': 'none', 'font-style': 'normal', 'font-variant': 'small-caps', 'text-transform': 'lowercase'
+            })
+            $("#dialog").dialog("open");
+
+            setTimeout(function () {
+              $('#dialog').dialog('close');
+            }, 2000);
+
+          }
+          else {
+            $("p", "#dialog").text("" + data);
+            $("p", "#dialog").css({
+              'font-family': 'Georgia, serif;', 'font-size': '25px', 'letter-spacing': '2px', 'word-spacing': '2px', 'color': '#703749', 'font-weight': 'normal', 'text-decoration': 'none', 'font-style': 'normal', 'font-variant': 'small-caps', 'text-transform': 'lowercase'
+            })
+            $("#dialog").dialog("open");
+
+            setTimeout(function () {
+              $('#dialog').dialog('close');
+            }, 3000);
+          }
+
+
+        }
+      });
+      return true;
+    }
+  }
+
+
+
+
+</script>
+
+
+
+
+
+
+
+<form action='/search/' method="POST" class="form-horizontal" role="form">{% csrf_token %}
+  <div class="container">
+    <div class="row">
+      <h1 style="padding-top:50px;"></h1>
+      <div id="custom-search-input" style="padding-top:15%;">
+        <div class="input-group col-md-12">
+          <input type="text" id="zipcode" name="zipcode" onkeyup="return IsValidZipCode(this.form.zipcode.value)"
+            class="  search-query form-control" placeholder="Enter a 5-digit US zipcode" required autocomplete="off" />
+          <span class="input-group-btn">
+            <button class="btn btn-danger" type="submit">
+              <span class=" glyphicon glyphicon-search"></span>
+            </button>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label class="col-sm-4 control-label">Search Radius:</label>
+          <div class="col-sm-8">
+
+            <label class="radio-inline"> <input class="radius-radio" type="radio" name="radius" id="radius_unlimited"
+                value="unlimited" checked>
+              Unlimited </label>
+            <label class="radio-inline"> <input class="radius-radio" type="radio" name="radius" id="radius_200"
+                value="200mi">
+              200 Miles
+            </label>
+            <label class="radio-inline"> <input class="radius-radio" type="radio" name="radius" id="radius_150"
+                value="150mi">
+              150 Miles
+            </label>
+            <label class="radio-inline"> <input class="radius-radio" type="radio" name="radius" id="radius_100"
+                value="100mi">
+              100 Miles
+            </label>
+            <label class="radio-inline"> <input class="radius-radio" type="radio" name="radius" id="radius_50"
+                value="50mi">
+              50 Miles
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <div class="row"><span class="help-block" style="text-align: right; padding-right: 45px;" id="ErrorDiv">
+    </div>
+  </div>
+</form>
+<div class="text-center">
+  <img src="{% static 'image/twitter.png' %}" alt="I analyze tweets" class="img-thumbnail"
+    style="width: 5%;padding-top: 25%;border: 0;" />
+</div>
+<div id="dialog" title="City">
+  <p id="city_found"> </p>
+</div>
+{% endblock %}

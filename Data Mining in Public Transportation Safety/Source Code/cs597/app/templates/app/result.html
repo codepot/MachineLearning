@@ -1,0 +1,73 @@
+{% extends 'app/base_result.html' %}
+{% load staticfiles %}
+
+<title>Analysis Report</title>
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<script type="text/javascript">
+
+
+  document.onreadystatechange = function () {
+    var state = document.readyState
+    if (state == 'interactive') {
+      document.getElementById('contents').style.visibility = "hidden";
+    } else if (state == 'complete') {
+      /*
+      setTimeout(function () {
+        //document.getElementById('interactive');
+        document.getElementById('load').style.visibility = "hidden";
+        document.getElementById('contents').style.visibility = "visible";
+        document.getElementById("contents").style.display = "block";
+      }, 2000);
+      */
+      //var zipcode = {{query}};
+      $.ajax({
+        url: '/load_tweets/',
+        dataType: 'json',
+        success: function (data) {
+          var str = String(data);
+          document.getElementById("tweets").innerHTML = "<table>" + str + "</table>";
+          document.getElementById('load').style.visibility = "hidden";
+          document.getElementById('contents').style.visibility = "visible";
+          document.getElementById("contents").style.display = "block";
+        }
+
+      }
+      );
+    }
+  }
+
+</script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+<div id="load">
+  <i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
+
+  <div class="lds-facebook">
+    <div></div>
+    <div></div>
+    <div></div>
+
+    <p class="blinking">downloading tweets...</p>
+  </div>
+</div>
+
+
+
+<div id="contents">
+
+  <div id="tweets">
+
+  </div>
+  <div style="float: right;">
+    <a class="btn btn-warning" href="/export/">EXPORT</a>
+    <a class="btn btn-warning" href="/group/">GROUP DISPLAY</a>
+  </div>
+  <div class="text-center">
+    <img src="{% static 'image/twitter.png' %}" alt="I analyze tweets" class="img-thumbnail"
+      style="width: 48px;padding-top: 20px;border: 0;" />
+  </div>
+</div>
+{% endblock %}

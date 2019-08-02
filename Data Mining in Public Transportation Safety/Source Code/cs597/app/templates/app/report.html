@@ -1,0 +1,102 @@
+{% load staticfiles %}
+
+
+<link rel='stylesheet' href="{% static 'css/report.css' %}">
+<link rel="shortcut icon" href="{% static 'image/favicon.ico' type='image/x-icon' %}">
+<link rel="icon" sizes="32x32" type="image/png" href="{% static 'image/favicon.png' %}" />
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<title>Analysis Report</title>
+
+<script type="text/javascript">
+  document.onreadystatechange = function () {
+    var state = document.readyState
+    if (state == 'interactive') {
+      document.getElementById('contents').style.visibility = "hidden";
+    } else if (state == 'complete') {
+      /*
+      setTimeout(function () {
+        //document.getElementById('interactive');
+        document.getElementById('load').style.visibility = "hidden";
+        document.getElementById('contents').style.visibility = "visible";
+        document.getElementById("contents").style.display = "block";
+      }, 2000);
+      */
+      $.ajax({
+        url: '/download_tweets/',
+        dataType: 'json',
+        success: function (data) {
+          var str = String(data);
+          setTimeout(function () {
+            document.getElementById("one").innerHTML = "<table>" + str + "</table>";
+            document.getElementById('load').style.visibility = "hidden";
+            document.getElementById('contents').style.visibility = "visible";
+            document.getElementById("contents").style.display = "block";
+          }, 2000);
+        }
+
+      }
+      );
+    }
+
+
+    (function ($) {
+      $("#content").find('p').hide();
+
+
+      var tabs = $(".tabs li a");
+
+      tabs.click(function () {
+        var content = this.hash.replace('/', '');
+        tabs.removeClass("active");
+        $(this).addClass("active");
+        $("#content").find('p').hide();
+        $(content).fadeIn(200);
+      });
+
+      $("#one").show();
+
+    })(jQuery);
+  }
+
+
+
+</script>
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+
+{% csrf_token %}
+
+<div id="load">
+  <div class="lds-facebook">
+    <div></div>
+    <div></div>
+    <div></div>
+    <p class="blinking">downloading tweets...</p>
+  </div>
+</div>
+
+<div id="contents">
+  <div class="wrap">
+
+    <ul class="tabs">
+      <li><a class="active" href="#/one">Tweets</a></li>
+      <li><a href="#/two">Map</a></li>
+      <li><a href="#/three">Chart</a></li>
+    </ul>
+
+    <div id="content">
+      <p id="one">
+        ONE
+      </p>
+      <p id="two">THE MAP</p>
+      <p id="three">THE PIE CHART</p>
+    </div>
+
+  </div>
+</div>
+
+
+{% endblock %}

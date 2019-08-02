@@ -1,0 +1,132 @@
+{% load staticfiles %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <style>
+    body {
+
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+
+
+    }
+
+    #topnavbar {
+      overflow: hidden;
+      background-color: #333;
+      background: #f2f5f6;
+      /* Old browsers */
+      background: -moz-linear-gradient(top, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+      /* FF3.6-15 */
+      background: -webkit-linear-gradient(top, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+      /* Chrome10-25,Safari5.1-6 */
+      background: linear-gradient(to bottom, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+      /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+      filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f5f6', endColorstr='#c8d7dc', GradientType=0);
+      /* IE6-9 */
+      height: 32px;
+
+      font-family: Georgia, serif;
+      font-size: 12px;
+      letter-spacing: 2px;
+      word-spacing: 2px;
+      color: #000000;
+      font-weight: 500;
+      text-decoration: none solid rgb(68, 68, 68);
+      text-transform: uppercase;
+      vertical-align: bottom;
+    }
+
+    #topnavbar a {
+      float: left;
+      color: #000000;
+      text-align: center;
+      padding: 6px 16px;
+      text-decoration: none;
+      font-size: 14px;
+    }
+
+    #topnavbar a:hover {
+      background-color: darkgray;
+      color: black;
+    }
+
+    #topnavbar a.active {
+      background-color: darkslategray;
+      color: coral;
+      font-weight: 700;
+    }
+
+    table,
+    td,
+    th {
+      border: 1px solid #ddd;
+      text-align: left;
+
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      font-weight: 18px;
+    }
+
+    th,
+    td {
+      padding: 15px;
+
+    }
+
+    tr {
+      height: 18px;
+    }
+
+    td:nth-child(1) {
+      width: 80px;
+      height: 25px;
+    }
+  </style>
+  <meta charset="utf-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
+  <link rel='stylesheet' href="{% static 'css/report.css' %}">
+
+  <link rel='stylesheet' href="{% static 'css/home.css' %}">
+
+
+  <link rel="shortcut icon" href="{% static 'image/favicon.ico' type='image/x-icon' %}">
+  <link rel="icon" sizes="32x32" type="image/png" href="{% static 'image/favicon.png' %}" />
+
+  <title>Tweets</title>
+</head>
+
+<body>
+  <div id="topnavbar">
+    <a href="/home/">Home</a>
+    <a class="active" href="#">Tweets</a>
+    <a href="/map/">Map</a>
+    <a href="/chart/">Chart</a>
+    
+  </div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-8">
+
+        {% block content %}
+        {% endblock %}
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

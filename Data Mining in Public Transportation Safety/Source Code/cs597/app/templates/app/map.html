@@ -1,0 +1,189 @@
+{% load staticfiles %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<head>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .topnav {
+            overflow: hidden;
+            background-color: #333;
+            background: #f2f5f6;
+            /* Old browsers */
+            background: -moz-linear-gradient(top, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+            /* FF3.6-15 */
+            background: -webkit-linear-gradient(top, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+            /* Chrome10-25,Safari5.1-6 */
+            background: linear-gradient(to bottom, #f2f5f6 0%, #e3eaed 37%, #c8d7dc 100%);
+            /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f5f6', endColorstr='#c8d7dc', GradientType=0);
+            /* IE6-9 */
+            height: 32px;
+
+            font-family: Georgia, serif;
+            font-size: 12px;
+            letter-spacing: 2px;
+            word-spacing: 2px;
+            color: #000000;
+            font-weight: 500;
+            text-decoration: none solid rgb(68, 68, 68);
+            text-transform: uppercase;
+            vertical-align: bottom;
+        }
+
+        .topnav a {
+            float: left;
+            color: #000000;
+            text-align: center;
+            padding: 6px 16px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .topnav a:hover {
+            background-color: darkgray;
+            color: black;
+        }
+
+        .topnav a.active {
+            background-color: darkslategray;
+            color: coral;
+            font-weight: 700;}
+    </style>
+    <title>MAP</title>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/openlayers/2.11/lib/OpenLayers.js"></script>
+
+<link rel="stylesheet" href="https://openlayers.org/en/v4.6.5/css/ol.css" type="text/css">
+<link rel="icon" sizes="32x32" type="image/png" href="/static/image/favicon.png" />
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        map = new OpenLayers.Map("map");
+        map.addLayer(new OpenLayers.Layer.OSM());
+
+        epsg4326 = new OpenLayers.Projection("EPSG:4326"); //WGS 1984 projection
+        projectTo = map.getProjectionObject(); //The map projection (Spherical Mercator)
+
+        //
+
+        var vectorLayer = new OpenLayers.Layer.Vector("Overlay");
+
+        $.ajax({
+            url: '/mapData/',
+            dataType: 'json',
+            success: function (data) {
+                $.each(data, function (index, item) {
+                    //$('#tweet_list').append("<p>" + item['tid'] +"  -  "+ item['text'] +"</p>");
+
+                    if (index == 0) {
+                        var lonLat = new OpenLayers.LonLat(-117.72, 33.85).transform(epsg4326, projectTo);
+                        var zoom = 10.25;
+                        map.setCenter(lonLat, zoom);
+                    }
+
+                    var feature = new OpenLayers.Feature.Vector(
+                        new OpenLayers.Geometry.Point(parseFloat(item['longitude']), parseFloat(item['latitude'])).transform(epsg4326, projectTo),
+                        { description: '' + item['text'] },
+                        { externalGraphic: "{% static 'image/location/' %}" + item['signal'] + ".png", graphicHeight: 25, graphicWidth: 21, graphicXOffset: -12, graphicYOffset: -25 }
+                    );
+                    vectorLayer.addFeatures(feature);
+
+                });
+
+                //$('#tweet_list').append("<p>" + data[0].tid + "</p>");
+
+                /*
+                var str = String(data);
+                if (str.length > 0) { // trim 1 last character ','
+                    str = str.substring(0, str.length - 1);
+                }
+                cities = str.split('|');
+                var i;
+                var result = "";
+                for (i = 0; i < cities.length; i++) {
+                    city = cities[i].split(',');
+                    result += city[0] + '\n'; //major city
+
+                    if (i == 0) {
+                        var lonLat = new OpenLayers.LonLat(parseFloat(city[4])-6, parseFloat(city[3])-4).transform(epsg4326, projectTo);
+                        var zoom = 5.42;
+                        map.setCenter(lonLat, zoom);
+                    }
+                   
+
+                    var feature = new OpenLayers.Feature.Vector(
+                        new OpenLayers.Geometry.Point(parseFloat(city[4]), parseFloat(city[3])).transform(epsg4326, projectTo),
+                        { description: '' + city[0] },
+                        { externalGraphic: "{% static 'image/' %}" + city[5], graphicHeight: 25, graphicWidth: 21, graphicXOffset: -12, graphicYOffset: -25 }
+                    );
+                    vectorLayer.addFeatures(feature);
+                    
+                }
+
+                alert(result);
+                //document.getElementById("cities_json").innerHTML = str;
+                */
+            }
+        });
+
+
+
+
+        map.addLayer(vectorLayer);
+
+
+        //Add a selector control to the vectorLayer with popup functions
+        var controls = {
+            selector: new OpenLayers.Control.SelectFeature(vectorLayer, { onSelect: createPopup, onUnselect: destroyPopup })
+        };
+
+        function createPopup(feature) {
+            feature.popup = new OpenLayers.Popup.FramedCloud("pop",
+                feature.geometry.getBounds().getCenterLonLat(),
+                null,
+                '<div class="markerContent">' + feature.attributes.description + '</div>',
+                null,
+                true,
+                function () { controls['selector'].unselectAll(); }
+            );
+            //feature.popup.closeOnMove = true;
+            map.addPopup(feature.popup);
+        }
+
+        function destroyPopup(feature) {
+            feature.popup.destroy();
+            feature.popup = null;
+        }
+
+        map.addControl(controls['selector']);
+        controls['selector'].activate();
+
+    })
+
+</script>
+
+<body>
+    <div class="topnav">
+        <a href="/home/">Home</a>
+        <a href="/result/">Tweets</a>
+        <a class="active" href="#">Map</a>
+        <a href="/chart/">Chart</a>
+       
+    </div>
+    <div id="tweet_list">
+        <!--Here where I want to put the client list-->
+    </div>
+    <div id="map" style="width:100%;height:90%;"></div>
+</body>
+{% endblock %}

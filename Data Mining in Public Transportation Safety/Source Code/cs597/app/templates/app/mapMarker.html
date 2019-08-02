@@ -1,0 +1,71 @@
+{% load crispy_forms_tags %}
+
+<html>
+<head>
+    <script src="http://www.openlayers.org/api/OpenLayers.js"></script>
+    <script type="text/javascript">
+        var map, mappingLayer, vectorLayer, selectMarkerControl, selectedFeature;
+
+        function onFeatureSelect(feature) {
+            selectedFeature = feature;
+            popup = new OpenLayers.Popup.FramedCloud("tempId", feature.geometry.getBounds().getCenterLonLat(),
+                                     null,
+                                     selectedFeature.attributes.salutation + " from Lat:" + selectedFeature.attributes.Lat + " Lon:" + selectedFeature.attributes.Lon,
+                                     null, true);
+            feature.popup = popup;
+            map.addPopup(popup);
+        }
+
+        function onFeatureUnselect(feature) {
+            map.removePopup(feature.popup);
+            feature.popup.destroy();
+            feature.popup = null;
+        }   
+
+        function init(){
+            map = new OpenLayers.Map( 'map');
+            mappingLayer = new OpenLayers.Layer.OSM("Simple OSM Map");
+
+            map.addLayer(mappingLayer);
+            vectorLayer = new OpenLayers.Layer.Vector("Vector Layer", {projection: "EPSG:4326"}); 
+            selectMarkerControl = new OpenLayers.Control.SelectFeature(vectorLayer, {onSelect: onFeatureSelect, onUnselect: onFeatureUnselect});
+            map.addControl(selectMarkerControl);
+
+            selectMarkerControl.activate();
+            map.addLayer(vectorLayer);
+            map.setCenter(
+                new OpenLayers.LonLat(0, 0).transform(
+                    new OpenLayers.Projection("EPSG:4326"),
+                    map.getProjectionObject())
+
+                , 1
+            );    
+        }
+
+        function placeRandomMarker(){
+            var randomLat = Math.floor((Math.random()*180)-90);
+            var randomLon = Math.floor((Math.random()*180)-90);
+            var randomLonLat = new OpenLayers.Geometry.Point( randomLon, randomLat);
+            randomLonLat.transform("EPSG:4326", map.getProjectionObject());
+            var randomFeature = new OpenLayers.Feature.Vector(randomLonLat,
+                                    { salutation: "hello world", Lon : randomLon, Lat : randomLat});
+            vectorLayer.addFeatures(randomFeature);
+            var popup = new OpenLayers.Popup.FramedCloud("tempId", new OpenLayers.LonLat( randomLon, randomLat).transform("EPSG:4326", map.getProjectionObject()),
+                       null,
+                       randomFeature.attributes.salutation + " from Lat:" + randomFeature.attributes.Lat + " Lon:" + randomFeature.attributes.Lon,
+                       null, true);
+            randomFeature.popup = popup;
+            map.addPopup(popup); 
+        }
+
+
+    </script>
+
+
+</head>
+<body onload="init()">
+
+<div id="map" style="height:90%;"></div>
+<button onclick="placeRandomMarker()">Place Marker</button>
+</body>
+</html>

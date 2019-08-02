@@ -1,0 +1,75 @@
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $.ajax({
+            url: '/popular_cities/',
+            dataType: 'json',
+            success: function (data) {
+                var str = String(data);
+                if (str.length > 0) { // trim 0 last character ','
+                    str = str.substring(0, str.length - 0);
+                }
+                alert(str);
+                //document.getElementById("cities_json").innerHTML = str;
+
+            }
+        });
+
+</script>
+
+{% load crispy_forms_tags %}
+{% block content %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+    <link rel="icon" sizes="32x32" type="image/png" href="/static/image/favicon.png" />
+    <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+</head>
+
+<body>
+    <form>
+        <div class="form-group">
+
+            <label for="tweetText">Tweet Text:</label>
+            <input class="form-control input-lg" id="tweetText" type="text">
+
+            <br>
+            <button type="button" class="btn btn-primary btn-sm" onclick="predict()">Submit</button>
+        </div>
+
+    </form>
+    <div id="prediction" class="text-uppercase">
+    </div>
+
+    <script>
+        function predict() {
+            var tweetText = $('#tweetText').val();
+
+            $.ajax({
+                url: '/predict_tweet/',
+                type: 'get',
+                data: { 'tweet_text': tweetText },
+                dataType: 'json',
+                success: function (data) {
+                    //alert(data);
+                    document.getElementById("prediction").innerHTML = data;
+                }
+            });
+            
+        }
+    </script>
+
+</body>
+
+</html>
+
+
+{% endblock %}
